@@ -28,23 +28,22 @@ validate() {
     fi
 }
 
-dnf module disable nginx -y
+dnf module disable nginx -y &>>$log_file
 validate $? "disabling the nginx"
 
-dnf module enable nginx:1.24 -y
+dnf module enable nginx:1.24 -y &>>$log_file
 validate $? "enabling the nginx"
 
-dnf install nginx -y
+dnf install nginx -y &>>$log_file
 validate $? "installing nginx"
 
-
-systemctl enable nginx 
+systemctl enable nginx &>>$log_file
 validate $? "enabling nginx"
 
-systemctl start nginx 
+systemctl start nginx &>>$log_file
 validate $? "starting the nginx"
 
-rm -rf /usr/share/nginx/html/* 
+rm -rf /usr/share/nginx/html/* &>>$log_file
 validate $? "Remove the default content that web server is serving"
 
 curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip &>>$log_file
