@@ -28,7 +28,55 @@ validate() {
     fi
 }
 
+dnf module disable nodejs -y &>>$log_file
+validate $? "disabling nodejs"
 
+dnf module enable nodejs:20 -y &>>$log_file
+validate $? "enabling nodejs"
+
+dnf install nodejs -y &>>$log_file
+validate $? "installing nodejs"
+
+mkdir -p /app &>>$log_file
+validate $? "creating app directory to place our application"
+
+curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip &>>$log_file
+validate $? "dowloading the zipped code to temp location"
+
+cd /app &>>$log_file
+validate $? "changing to app directory"
+
+rm -rf /app/* &>>$log_file
+validate $? "Removing the existing user code in app directory"
+
+unzip /tmp/user.zip &>>$log_file
+validate $? "unzipping the user code in app directory location"
+
+cd /app &>>$log_file
+validate $? "changing to app directory"
+
+npm install &>>$log_file
+validate $? "downloading the dependencies"
+
+id roboshop &>>$log_file
+if [ $? -ne 0 ]; then
+    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
+    echo -e "roboshop user created $G Successfully $N" | tee -a $log_file
+else
+    echo -e "user already exists $Y SKIPPING $N" | tee -a $log_file
+fi
+
+cp $Dir_name/user.service /etc/systemd/system/user.service &>>$log_file
+validate $? "copying user.service file and setting up systemd service"
+
+systemctl daemon-reload &>>$log_file
+validate $? "reloading the daemon to recongnize the new service created"
+
+systemctl enable user &>>$log_file
+validate $? "enabling user"
+
+systemctl start user &>>$log_file
+validate $? "started the user"
 
 
 
