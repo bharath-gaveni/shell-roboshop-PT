@@ -42,7 +42,7 @@ mkdir -p /app &>>$log_file
 validate $? "creating app directory to place our application"
 
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>$log_file
-validate "dowloading the zipped code to temp location"
+validate $? "dowloading the zipped code to temp location"
 
 cd /app &>>$log_file
 validate $? "changing to app directory"
