@@ -48,7 +48,7 @@ validate $? "Restarting the mongodb"
 
 end_time=$(date +%s)
 total_time=$(($end_time-$start_time))
-echo "Time taken to execute script $0 is:$total_time seconds"
+echo "Time taken to execute script $0 is:$total_time seconds" | tee -a $log_file
 
 
 
