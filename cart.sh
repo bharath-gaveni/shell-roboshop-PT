@@ -40,7 +40,7 @@ validate $? "installing nodejs"
 mkdir -p /app &>>$log_file
 validate $? "creating app directory to place our application"
 
-curl -o /tmp/cart.zip https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip &>>$log_file
+curl -o -L /tmp/cart.zip https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip &>>$log_file
 validate $? "dowloading the zipped code to temp location"
 
 cd /app &>>$log_file
