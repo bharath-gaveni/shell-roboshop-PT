@@ -28,55 +28,39 @@ validate() {
     fi
 }
 
-dnf module disable nodejs -y &>>$log_file
-validate $? "disabling nodejs"
+dnf module disable nginx -y
+validate $? "disabling the nginx"
 
-dnf module enable nodejs:20 -y &>>$log_file
-validate $? "enabling nodejs"
+dnf module enable nginx:1.24 -y
+validate $? "enabling the nginx"
 
-dnf install nodejs -y &>>$log_file
-validate $? "installing nodejs"
+dnf install nginx -y
+validate $? "installing nginx"
 
-mkdir -p /app &>>$log_file
-validate $? "creating app directory to place our application"
 
-curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip &>>$log_file
+systemctl enable nginx 
+validate $? "enabling nginx"
+
+systemctl start nginx 
+validate $? "starting the nginx"
+
+rm -rf /usr/share/nginx/html/* 
+validate $? "Remove the default content that web server is serving"
+
+curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip &>>$log_file
 validate $? "dowloading the zipped code to temp location"
 
-cd /app &>>$log_file
-validate $? "changing to app directory"
+cd /usr/share/nginx/html  &>>$log_file
+validate $? "changing the directory"
 
-rm -rf /app/* &>>$log_file
-validate $? "Removing the existing user code in app directory"
+unzip /tmp/frontend.zip &>>$log_file
+validate $? "unzipping the frontend code in html directory location"
 
-unzip /tmp/user.zip &>>$log_file
-validate $? "unzipping the user code in app directory location"
-
-cd /app &>>$log_file
-validate $? "changing to app directory"
-
-npm install &>>$log_file
-validate $? "downloading the dependencies"
-
-id roboshop &>>$log_file
-if [ $? -ne 0 ]; then
-    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
-    echo -e "roboshop user created $G Successfully $N" | tee -a $log_file
-else
-    echo -e "user already exists $Y SKIPPING $N" | tee -a $log_file
-fi
-
-cp $Dir_name/user.service /etc/systemd/system/user.service &>>$log_file
+cp $Dir_name/nginx.conf  /etc/nginx/nginx.conf &>>$log_file
 validate $? "copying user.service file and setting up systemd service"
 
-systemctl daemon-reload &>>$log_file
-validate $? "reloading the daemon to recongnize the new service created"
-
-systemctl enable user &>>$log_file
-validate $? "enabling user"
-
-systemctl start user &>>$log_file
-validate $? "started the user"
+systemctl restart nginx &>>$log_file
+validate $? "started the nginx"
 
 end_time=$(date +%s)
 total_time=$(($end_time-$start_time))
