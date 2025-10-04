@@ -56,7 +56,7 @@ unzip /tmp/frontend.zip &>>$log_file
 validate $? "unzipping the frontend code in html directory location"
 
 cp $Dir_name/nginx.conf  /etc/nginx/nginx.conf &>>$log_file
-validate $? "copying user.service file and setting up systemd service"
+validate $? "setting up reverse proxy"
 
 systemctl restart nginx &>>$log_file
 validate $? "started the nginx"
