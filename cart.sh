@@ -40,17 +40,17 @@ validate $? "installing nodejs"
 mkdir -p /app &>>$log_file
 validate $? "creating app directory to place our application"
 
-curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip &>>$log_file
+curl -o /tmp/cart.zip https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip &>>$log_file
 validate $? "dowloading the zipped code to temp location"
 
 cd /app &>>$log_file
 validate $? "changing to app directory"
 
 rm -rf /app/* &>>$log_file
-validate $? "Removing the existing user code in app directory"
+validate $? "Removing the existing cart code in app directory"
 
-unzip /tmp/user.zip &>>$log_file
-validate $? "unzipping the user code in app directory location"
+unzip /tmp/cart.zip &>>$log_file
+validate $? "unzipping the cart code in app directory location"
 
 cd /app &>>$log_file
 validate $? "changing to app directory"
@@ -66,17 +66,17 @@ else
     echo -e "user already exists $Y SKIPPING $N" | tee -a $log_file
 fi
 
-cp $Dir_name/user.service /etc/systemd/system/user.service &>>$log_file
-validate $? "copying user.service file and setting up systemd service"
+cp $Dir_name/cart.service /etc/systemd/system/cart.service &>>$log_file
+validate $? "copying cart.service file and setting up systemd service"
 
 systemctl daemon-reload &>>$log_file
 validate $? "reloading the daemon to recongnize the new service created"
 
-systemctl enable user &>>$log_file
-validate $? "enabling user"
+systemctl enable cart &>>$log_file
+validate $? "enabling cart"
 
-systemctl start user &>>$log_file
-validate $? "started the user"
+systemctl start cart &>>$log_file
+validate $? "started the cart"
 
 end_time=$(date +%s)
 total_time=$(($end_time-$start_time))
