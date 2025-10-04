@@ -1,4 +1,5 @@
 #!/bin/bash
+
 N="\e[0m"
 R="\e[0;31m"
 G="\e[0;32m"
@@ -28,27 +29,18 @@ validate() {
     fi
 }
 
-dnf module disable redis -y &>>$log_file
-validate $? "disabling redis"
+dnf install mysql-server -y &>>$log_file
+validate $? "installing mysql server"
 
-dnf module enable redis:7 -y &>>$log_file
-validate $? "enabling redis version 7"
+systemctl enable mysqld &>>$log_file
+validate $? "enabling mysql"
 
-dnf install redis -y &>>$log_file
-validate $? "installing redis"
+systemctl start mysqld &>>$log_file
+validate $? "start mysql"
 
-sed -i -e 's/127.0.0.1/0.0.0.0/g' -e '/protected-mode/ c protected-mode no' /etc/redis/redis.conf &>>$log_file
-validate $? "Allowing the remote connections to Redis"
-
-systemctl enable redis &>>$log_file
-validate $? "enabling redis"
-
-systemctl start redis &>>$log_file
-validate $? "starting the redis"
+mysql_secure_installation --set-root-pass RoboShop@1 &>>$log_file
+validate $? "setting up password for mysql to connect to db as root is default user"
 
 end_time=$(date +%s)
 Total_time=$(($end_time-$start_time))
     echo "Time taken for script $0 to execute is $Total_time seconds" | tee -a $log_file
-
-
-
