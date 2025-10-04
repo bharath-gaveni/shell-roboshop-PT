@@ -84,6 +84,7 @@ if [ $? -ne 0 ]; then
     mysql -h $Host_name -uroot -pRoboShop@1 < /app/db/schema.sql
     mysql -h $Host_name -uroot -pRoboShop@1 < /app/db/app-user.sql
     mysql -h $Host_name -uroot -pRoboShop@1 < /app/db/master-data.sql
+    echo -e "Data loaded $G Successfully $N"
 else
     echo -e "Shipping data is already loaded $Y SKIPPING $N"
 fi
