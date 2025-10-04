@@ -4,6 +4,7 @@ R="\e[0;31m"
 G="\e[0;32m"
 Y="\e[0;33m"
 Host_name=mongodb.bharathgaveni.fun
+Dir_name=$PWD
 id=$(id -u)
 
 if [ $id -ne 0 ]; then
@@ -65,7 +66,7 @@ else
     echo -e "user already exists $Y SKIPPING $N"
 fi
 
-cp $PWD/catalogue.service /etc/systemd/system/catalogue.service &>>$log_file
+cp $Dir_name/catalogue.service /etc/systemd/system/catalogue.service &>>$log_file
 validate $? "copying the catalogue.service"
 
 systemctl daemon-reload &>>$log_file
@@ -77,7 +78,7 @@ validate $? "Enabling catalogue"
 systemctl start catalogue &>>$log_file
 validate $? "started catalogue"
 
-cp $PWD/mongo.repo /etc/yum.repos.d/mongo.repo &>>$log_file
+cp $Dir_name/mongo.repo /etc/yum.repos.d/mongo.repo &>>$log_file
 validate $? "copying mongo.repo"
 
 dnf install mongodb-mongosh -y &>>$log_file
@@ -86,6 +87,7 @@ validate $? "installing mongodb client to load data"
 index=$(mongosh $Host_name --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')")
 if [ $index -le 0 ]; then
     mongosh --host $Host_name </app/db/master-data.js
+    echo "$R Data loaded successfully $N"
 else
     echo -e "Already loaded with data so $R SKIPPING $N"
 fi
