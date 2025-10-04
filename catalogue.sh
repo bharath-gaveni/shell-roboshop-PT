@@ -20,12 +20,14 @@ start_time=$(date +%s)
 mkdir -p $log_folder
 echo "Script $0 execution started at time:$(date)" | tee -a $log_file
 
-if [ $1 -ne 0 ]; then
-    echo -e "$2 is $R Failed $N" | tee -a $log_file
-    exit 1
-else
-    echo -e "$2 is $G success $N" | tee -a $log_file
-fi
+validate() {
+    if [ $1 -ne 0 ]; then
+        echo -e "$2 is $R Failed $N" | tee -a $log_file
+        exit 1
+    else
+        echo -e "$2 is $G success $N" | tee -a $log_file
+    fi
+}
 
 dnf module disable nodejs -y &>>$log_file
 validate $? "disabling nodejs"
