@@ -14,7 +14,7 @@ fi
 
 log_folder=/var/log/shell-roboshop-PT
 script_name=$(echo $0 | cut -d "." -f1)
-log_file=$log_file/$script_name.log
+log_file=$log_folder/$script_name.log
 
 mkdir -p $log_folder
 start_time=$(date +%s)

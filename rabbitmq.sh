@@ -13,7 +13,7 @@ fi
 
 log_folder=/var/log/shell-roboshop-PT
 script_name=$(echo $0 | cut -d "." -f1)
-log_file=$log_file/$script_name.log
+log_file=$log_folder/$script_name.log
 
 mkdir -p $log_folder
 start_time=$(date +%s)
@@ -47,10 +47,10 @@ if [ $? -ne 0 ]; then
     rabbitmqctl add_user $USER_NAME $USER_PASS &>>$log_file
     validate $? "settingup username and password"
 else
-    echo -e "username is already exists $Y SKIPPING $N"
+    echo -e "username is already exists $Y SKIPPING $N" | tee -a $log_file
 fi
 
-rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
+rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*" &>>$log_file
 validate $? "setting permissions to rabbitmq to receive or send que to all traffic"
 
 end_time=$(date +%s)
