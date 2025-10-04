@@ -19,7 +19,6 @@ mkdir -p $log_folder
 start_time=$(date +%s)
 echo "script $0 started at time: $(date)" | tee -a $log_file
 
-cp $PWD/mongo.repo  /etc/yum.repos.d/mongo.repo
 validate() {
     if [ $1 -ne 0 ]; then
         echo -e "$2  is $R Failed $N" | tee -a $log_file
@@ -28,6 +27,9 @@ validate() {
         echo -e "$2 is $G Success $N" | tee -a $log_file
     fi
 }
+
+cp $PWD/mongo.repo  /etc/yum.repos.d/mongo.repo
+validate $? "copying the mongo.repo"
 
 dnf install mongodb-org -y &>>$log_file
 validate $? "installing mongodb"
