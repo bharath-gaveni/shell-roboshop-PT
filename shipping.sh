@@ -89,7 +89,7 @@ else
     echo -e "Shipping data is already loaded $Y SKIPPING $N"
 fi
 
-systemctl restart shipping
+systemctl restart shipping &>>$log_file
 validate $? "Resart shipping"
 
 end_time=$(date +%s)
