@@ -7,7 +7,7 @@ Host_name=mongodb.bharathgaveni.fun
 id=$(id -u)
 
 if [ $id -ne 0 ]; then
-    echo "PLease execute the script $0 with root user access privilage"
+    echo -e "$R PLease execute the script $0 with root user access privilage $N"
     exit 1
 fi
 
