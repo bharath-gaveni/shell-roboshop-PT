@@ -3,98 +3,104 @@ N="\e[0m"
 R="\e[0;31m"
 G="\e[0;32m"
 Y="\e[0;33m"
-Host_name=mongodb.bharathgaveni.fun
 Dir_name=$PWD
+Host_name=mongodb.bharathgaveni.fun
+
 id=$(id -u)
 
 if [ $id -ne 0 ]; then
-    echo -e "$R PLease execute the script $0 with root user access privilage $N"
+    echo -e "$R please execute the script $0 with root user privilage access $N"
     exit 1
 fi
 
-log_folder=/var/log/shell-roboshop-RT
+log_folder=/var/log/shell-roboshop-PT
 script_name=$(echo $0 | cut -d "." -f1)
 log_file=$log_folder/$script_name.log
-
-mkdir -p $log_folder
 start_time=$(date +%s)
-echo "Script $0 execution started at time $(date)" | tee -a $log_file
+mkdir -p $log_folder
+echo "Script $0 execution started at time:$(date)" | tee -a $log_file
 
-validate() {
-    if [ $1 -ne 0 ]; then
-        echo -e "$2 is $R Failed $N" | tee -a $log_file
-        exit 1
-    else
-        echo -e "$2 is $G Success $N" | tee -a $log_file
-    fi
-}
+if [ $1 -ne 0 ]; then
+    echo -e "$2 is $R Failed $N" | tee -a $log_file
+    exit 1
+else
+    echo -e "$2 is $G success $N" | tee -a $log_file
+fi
 
 dnf module disable nodejs -y &>>$log_file
 validate $? "disabling nodejs"
 
 dnf module enable nodejs:20 -y &>>$log_file
-validate $? "enabling nodejs version 20"
+validate $? "enabling nodejs"
 
 dnf install nodejs -y &>>$log_file
 validate $? "installing nodejs"
 
 mkdir -p /app &>>$log_file
-validate $? "Creating app directory"
+validate $? "creating app directory to place our application"
 
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>$log_file
-validate $? "Downloading the catalogue code to temp location"
+validate "dowloading the zipped code to temp location"
 
 cd /app &>>$log_file
-validate $? "changing to app directory location"
+validate $? "changing to app directory"
 
 rm -rf /app/* &>>$log_file
-validate $? "removing the existing catlaogue code"
+validate $? "Removing the existing catalogue code in app directory"
 
 unzip /tmp/catalogue.zip &>>$log_file
-validate $? "unzipping the catalogue code in app dirctory location"
+validate $? "unzipping the catalogue code in app directory location"
 
 cd /app &>>$log_file
 validate $? "changing to app directory"
 
 npm install &>>$log_file
-validate $? "Installing the dependencies"
+validate $? "downloading the dependencies"
 
 id roboshop &>>$log_file
 if [ $? -ne 0 ]; then
     useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
+    echo -e "roboshop user created $G Successfully $N" | tee -a $log_file
 else
-    echo -e "user already exists $Y SKIPPING $N"
+    echo -e "user already exists $Y SKIPPING $N" | tee -a $log_file
 fi
 
 cp $Dir_name/catalogue.service /etc/systemd/system/catalogue.service &>>$log_file
-validate $? "copying the catalogue.service"
+validate $? "copying catalogue.service file and setting up systemd service"
 
 systemctl daemon-reload &>>$log_file
-validate $? "Deamon reload"
+validate $? "reloading the daemon to recongnize the new service created"
 
 systemctl enable catalogue &>>$log_file
-validate $? "Enabling catalogue"
+validate $? "enabling catalogue"
 
 systemctl start catalogue &>>$log_file
-validate $? "started catalogue"
+validate $? "started the catalogue"
 
 cp $Dir_name/mongo.repo /etc/yum.repos.d/mongo.repo &>>$log_file
-validate $? "copying mongo.repo"
+validate $? "copying the mongo repo to avaliable to download"
 
 dnf install mongodb-mongosh -y &>>$log_file
-validate $? "installing mongodb client to load data"
+validate $? "installing mongodb client to connect to mongodb db and load the schema and products"
 
 index=$(mongosh $Host_name --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')")
 if [ $index -le 0 ]; then
-    mongosh --host $Host_name </app/db/master-data.js
-    echo -e "$R Data loaded successfully $N"
+    mongosh --host $Host_name </app/db/master-data.js &>>$log_file
+    echo -e "Data loaded $G successfully $N" | tee -a $log_file
 else
-    echo -e "Already loaded with data so $R SKIPPING $N"
+    echo -e "Data is already loaded $Y SKIPPING $N" | tee -a $log_file
 fi
 
 end_time=$(date +%s)
 total_time=$(($end_time-$start_time))
-echo "Total time taken to execte the script $0 is:$total_time seconds" | tee -a $log_file
+echo "Total time taken to execute the script $0 is:$total_time seconds" | tee -a $log_file
+
+
+
+
+
+
+
 
 
 
