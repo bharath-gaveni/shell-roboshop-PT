@@ -87,7 +87,7 @@ validate $? "installing mongodb client to load data"
 index=$(mongosh $Host_name --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')")
 if [ $index -le 0 ]; then
     mongosh --host $Host_name </app/db/master-data.js
-    echo "$R Data loaded successfully $N"
+    echo -e "$R Data loaded successfully $N"
 else
     echo -e "Already loaded with data so $R SKIPPING $N"
 fi
