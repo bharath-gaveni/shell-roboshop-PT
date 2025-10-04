@@ -33,23 +33,23 @@ do
     
     aws route53 change-resource-record-sets \
     --hosted-zone-id $Host_zone \
-    --change-batch "{
+    --change-batch '{
         "Changes": [
         {
                 "Action": "UPSERT",
                 "ResourceRecordSet": {
-                    "Name": "$Record_Name",
+                    "Name": "'$Record_Name'",
                     "Type": "A",
                     "TTL": 1,
                     "ResourceRecords": [
                         {
-                            "Value": "$IP"
+                            "Value": "'$IP'"
                         }
                     ]
                 }
             }
         ]
-    }"
+    }'
 done
 
 
